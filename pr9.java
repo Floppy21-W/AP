@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class TicTacToeFunctions {
+public class pr9 {
     private static final int SIZE = 3;
 
     public static void displayBoard(char[][] board) {
