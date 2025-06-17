@@ -5,7 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class SimpleTextEditor {
+public class pr12 {
     private static final String FILENAME = "pr12.txt";
     private static final Scanner scanner = new Scanner(System.in);
 
