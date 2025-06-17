@@ -29,7 +29,7 @@ self.prohibited_passwords = ["admin", "pass", "password", "qwerty", "ytrewq"]
 def add_prohibited_password(self, password):
         if password and password.lower() not in (p.lower() for p in self.prohibited_passwords):
         self.prohibited_passwords.append(password)
-print(f"Prohibited password '{password}' додано.")
+print(f"Заборонений пароль '{password}' додано.")
         else:
 print("Заборонений пароль вже існує або введено недійсний пароль.")
 
