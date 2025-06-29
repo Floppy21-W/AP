@@ -1,136 +1,173 @@
-class UserAuthenticationError(Exception):
-pass
+import java.util.Scanner;
 
-class UserAlreadyExistsError(UserAuthenticationError):
-pass
+class User {
+    String username;
+    String password;
 
-class UserNotFoundError(UserAuthenticationError):
-pass
+    User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+}
 
-class InvalidUsernameError(UserAuthenticationError):
-pass
+class UserAlreadyExistsException extends Exception {
+    public UserAlreadyExistsException(String message) {
+        super(message);
+    }
+}
 
-class InvalidPasswordError(UserAuthenticationError):
-pass
+class UserNotFoundException extends Exception {
+    public UserNotFoundException(String message) {
+        super(message);
+    }
+}
 
-class MaxUsersExceededError(UserAuthenticationError):
-pass
+class InvalidUsernameException extends Exception {
+    public InvalidUsernameException(String message) {
+        super(message);
+    }
+}
 
-class ProhibitedPasswordError(UserAuthenticationError):
-pass
+class InvalidPasswordException extends Exception {
+    public InvalidPasswordException(String message) {
+        super(message);
+    }
+}
 
-class UserAuthenticationSystem:
-MAX_USERS = 15
+public class AuthenticationSystem {
+    private static final int MAX_USERS = 15;
+    private static User[] users = new User[MAX_USERS];
+    private static int userCount = 0;
+    private static String[] forbiddenPasswords = {"admin", "pass", "password", "qwerty", "ytrewq"};
 
-def init(self):
-self.users = []  # Correct initialization
-self.prohibited_passwords = ["admin", "pass", "password", "qwerty", "ytrewq"]
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("Меню:");
+            System.out.println("1 - Додати користувача");
+            System.out.println("2 - Видалити користувача");
+            System.out.println("3 - Аутентифікація користувача");
+            System.out.println("4 - Вихід");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
 
-def add_prohibited_password(self, password):
-        if password and password.lower() not in (p.lower() for p in self.prohibited_passwords):
-        self.prohibited_passwords.append(password)
-print(f"Заборонений пароль '{password}' додано.")
-        else:
-print("Заборонений пароль вже існує або введено недійсний пароль.")
+            switch (choice) {
+                case 1:
+                    try {
+                        addUser (scanner);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+                case 2:
+                    try {
+                        removeUser (scanner);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+                case 3:
+                    try {
+                        authenticateUser (scanner);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+                case 4:
+                    System.out.println("Вихід з програми.");
+                    return;
+                default:
+                    System.out.println("Невірний вибір.");
+            }
+        }
+    }
 
-def is_username_valid(self, username):
-        return len(username) >= 5 and ' ' не в імені користувача
+    private static void addUser (Scanner scanner) throws Exception {
+        if (userCount >= MAX_USERS) {
+            throw new UserAlreadyExistsException("Не можна додати більше користувачів.");
+        }
 
-def is_password_valid(self, password):
-        if len(password) < 10 or ' ' в пароль:
-        return False
+        System.out.print("Введіть ім'я користувача (мінімум 5 символів, без пробілів): ");
+        String username = scanner.nextLine();
+        validateUsername(username);
 
-        digit_count = sum(c.isdigit() для c в пароль)
-special_char_count = sum(not c.isalnum() для c в пароль)
+        System.out.print("Введіть пароль (мінімум 10 символів, з принаймні 3 цифрами, без пробілів): ");
+        String password = scanner.nextLine();
+        validatePassword(password);
 
-        if digit_count < 3 or special_char_count < 1:
-        return False
+        users[userCount++] = new User(username, password);
+        System.out.println("Користувача успішно додано.");
+    }
 
-        low_password = пароль.lower()
-        for p in self.prohibited_passwords:
-        if p.lower() in low_password:
-        return False
+    private static void removeUser (Scanner scanner) throws Exception {
+        System.out.print("Введіть ім'я користувача для видалення: ");
+        String username = scanner.nextLine();
+        boolean found = false;
 
-        return True
+        for (int i = 0; i < userCount; i++) {
+            if (users[i].username.equals(username)) {
+                users[i] = users[userCount - 1];
+                users[userCount - 1] = null;
+                userCount--;
+                found = true;
+                System.out.println("Користувача успішно видалено.");
+                break;
+            }
+        }
 
-def register_user(self, username, password):
-        if len(self.users) >= self.MAX_USERS:
-raise MaxUsersExceededError("Неможливо додати більше користувачів. Досягнуто максимальної кількості – 15.")
-        if not self.is_username_valid(username):
-raise InvalidUsernameError("Ім'я користувача має містити щонайменше 5 символів і не містити пробілів.")
-        if not self.is_password_valid(password):
-raise InvalidPasswordError("Пароль має містити щонайменше 10 символів, щонайменше 3 цифри, щонайменше 1 спеціальний символ, не містити пробілів та заборонених слів.")
+        if (!found) {
+            throw new UserNotFoundException("Користувача не знайдено.");
+        }
+    }
 
-        for user in self.users:
-        if user[0] == username:
-raise UserAlreadyExistsError("Користувач з таким ім'ям вже існує.")
+    private static void authenticateUser (Scanner scanner) throws Exception {
+        System.out.print("Введіть ім'я користувача: ");
+        String username = scanner.nextLine();
+        System.out.print("Введіть пароль: ");
+        String password = scanner.nextLine();
 
-        self.users.append([username, password])
-print(f"Користувач '{username}' успішно зареєстровано.")
+        for (int i = 0; i < userCount; i++) {
+            if (users[i].username.equals(username) && users[i].password.equals(password)) {
+                System.out.println("Користувача було аутентифіковано.");
+                return;
+            }
+        }
 
-def delete_user(self, username):
-        for i, user in enumerate(self.users):
-        if user[0] == username:
-del self.users[i]
-print(f"Користувач '{username}' успішно видалено.")
-                return
-raise UserNotFoundError("Користувача не знайдено.")
+        throw new UserNotFoundException("Невірне ім'я користувача або пароль.");
+    }
 
-def perform_action(self, username, password):
-        for user in self.users:
-        if user[0] == username:
-        if user[1] == password:
-print(f"Користувач '{username}' успішно автентифіковано.")
-                    return
-                            else:
-raise InvalidPasswordError("Пароль не співпадає.")
-raise UserNotFoundError("Користувача не знайдено.")
+    private static void validateUsername(String username) throws InvalidUsernameException {
+        if (username.length() < 5 || username.contains(" ")) {
+            throw new InvalidUsernameException("Ім'я користувача має містити не менше 5 символів і не може містити пробілів.");
+        }
 
-def input_username(self):
-        return input("Введіть ім'я користувача: ").strip()
+        for (int i = 0; i < userCount; i++) {
+            if (users[i] != null && users[i].username.equals(username)) {
+                throw new UserAlreadyExistsException("Користувач з таким ім'ям вже існує.");
+            }
+        }
+    }
 
-def input_password(self):
-        return input("Введіть пароль: ").strip()
+    private static void validatePassword(String password) throws InvalidPasswordException {
+        if (password.length() < 10 || password.contains(" ")) {
+            throw new InvalidPasswordException("Пароль має містити не менше 10 символів і не може містити пробілів.");
+        }
 
-def input_prohibited_password(self):
-        return input("Введіть новий заборонений пароль для додавання: ").strip()
+        int digitCount = 0;
+        for (char c : password.toCharArray()) {
+            if (Character.isDigit(c)) {
+                digitCount++;
+            }
+        }
 
-def menu(self):
-        while True:
-print("\nMenu:")
-print("1 - Зареєструвати нового користувача")
-print("2 - Видалити користувача за іменем користувача")
-print("3 - Виконання дії користувачем (автентифікація)")
-print("4 - Додати заборонений пароль")
-print("5 - Вихід")
+        if (digitCount < 3) {
+            throw new InvalidPasswordException("Пароль має містити принаймні 3 цифри.");
+        }
 
-choice = input("Виберіть дію (1-5):").strip()
-    try:
-            if choice == '1':
-username = self.input_username()
-password = self.input_password()
-                    self.register_user(username, password)
-elif choice == '2':
-username = self.input_username()
-                    self.delete_user(username)
-elif choice == '3':
-username = self.input_username()
-password = self.input_password()
-                    self.perform_action(username, password)
-elif choice == '4':
-new_prohibited = self.input_prohibited_password()
-                    if new_prohibited == '':
-print("Порожній ввід, нічого не додано.")
-                    else:
-                            self.add_prohibited_password(new_prohibited)
-elif choice == '5':
-print("Вихід з програми.")
-                    break
-                            else:
-print("Недійсний вибір. Виберіть від 1 до 5..")
-except UserAuthenticationError as e:
-print("Error:", e)
-
-if name == "pr10":
-auth_system = UserAuthenticationSystem()
-    auth_system.menu()
+        for (String forbidden : forbiddenPasswords) {
+            if (password.toLowerCase().contains(forbidden)) {
+                throw new InvalidPasswordException("Пароль не може містити заборонені слова.");
+            }
+        }
+    }
+}
